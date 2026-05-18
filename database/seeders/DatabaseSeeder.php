@@ -2,24 +2,37 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
+     *
+     * Run order respects foreign-key dependencies:
+     *   users → referees → clubs → leagues
+     *   → players (needs clubs)
+     *   → logins  (needs users)
+     *   → matches (needs leagues, clubs, referees, users)
+     *   → match lineups / scorers / comments / views (inside MatchSeeder)
+     *   → payments / transactions
+     *   → advertisements / events
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            AdminSeeder::class,
+            UserSeeder::class,
+            RefereeSeeder::class,
+            ClubSeeder::class,
+            LeagueSeeder::class,
+            PlayerSeeder::class,
+            LoginSeeder::class,
+            MatchSeeder::class,
+            PlanSeeder::class,          // plans before payments
+            PaymentSeeder::class,
+            AdvertisementSeeder::class,
+            AdEventSeeder::class,
         ]);
     }
 }
