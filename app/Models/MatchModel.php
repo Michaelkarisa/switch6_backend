@@ -18,16 +18,19 @@ class MatchModel extends BaseUuidModel
         'status',
         'venue',
         'highlights',
-        'url',
+        'streamkeys',
         'home_formation',
         'away_formation',
         'cancellation_reason',
+        'type',
+        'slug',
     ];
 
     protected $casts = [
         'match_date' => 'datetime',
         'home_score' => 'integer',
         'away_score' => 'integer',
+        'streamkeys' => 'array',
     ];
 
     public function league()
@@ -45,7 +48,7 @@ class MatchModel extends BaseUuidModel
         return $this->belongsTo(Club::class, 'away_club_id');
     }
 
-    public function refereeRecord()
+    public function referee()
     {
         return $this->belongsTo(Referee::class, 'referee_id');
     }
@@ -65,13 +68,22 @@ class MatchModel extends BaseUuidModel
         return $this->hasMany(Scorer::class, 'match_id');
     }
 
-    public function comments()
-    {
-        return $this->hasMany(Comment::class, 'match_id');
-    }
-
     public function views()
     {
-        return $this->hasMany(MatchView::class, 'match_id');
+        return $this->hasMany(MatchViews::class, 'match_id');
+    }
+
+    public function matchViews():int{
+        $totalViews = $this->views()->sum('view_count');
+        return $totalViews;
+    }
+    public function adEvents()
+    {
+        return $this->hasMany(AdEvent::class);
+    }
+
+    public function bids()
+    {
+        return $this->hasMany(MatchBid::class, 'match_id');
     }
 }

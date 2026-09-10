@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BatchStoreClubRequest;
 use App\Http\Requests\StoreClubRequest;
 use App\Models\Club;
 use App\Services\ApiResponseService as Api;
@@ -30,15 +29,6 @@ class ClubController extends Controller
         $club = $this->clubs->create($request->validated());
 
         return Api::created($club, 'Club added successfully', ['club_id' => $club->id]);
-    }
-
-    /** POST /v1/clubs/batch */
-    public function batchStore(BatchStoreClubRequest $request): JsonResponse
-    {
-        $validated = $request->validated();
-        $added     = $this->clubs->createMany($validated);
-
-        return Api::batch($added, count($validated), 'clubs');
     }
 
     /** GET /v1/club/{identifier} */

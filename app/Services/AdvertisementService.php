@@ -11,6 +11,8 @@ class AdvertisementService
     public function __construct(
         private AdTargetingService $targeting,
         private AuditLogService    $audit,
+        private PaymentService     $payment,
+        private AdPricingService   $pricing
     ) {}
 
     /**
@@ -34,15 +36,32 @@ class AdvertisementService
      */
     public function create(array $data, ?User $user = null): Advertisement
     {
+        $duration = (int) ($data['duration'] ?? 15);
+        $price = $this->pricing->generalCampaignPrice($data['file_type'], $duration);
+
+        $pay = [
+            'amount'   => $price,
+            'currency' => $data['currency'] ?? 'KES',
+            'details'  => $data['details'] ?? [],
+            'method'   => $data['method'] ?? 'mpesa',
+            'type'     => 'advertisement',
+        ];
+        $payment_id = $this->payment->pay($user, $pay);
         $payload = [
-            'title'       => $data['title'],
-            'file_type'   => $data['file_type'],
-            'duration'    => $data['duration']    ?? 15,
-            'period'      => $data['period']      ?? null,
-            'end_date'    => $data['end_date']    ?? null,
-            'status'      => 'pending', // active once payment confirmed
-            'target_tags' => isset($data['target_tags']) ? (array) $data['target_tags'] : null,
-            'user_id'     => $user?->id,
+            'payment_id'    => $payment_id,
+            'title'         => $data['title'],
+            'file_type'     => $data['file_type'],
+            'duration'      => $duration,
+            'period'        => $data['period']      ?? null,
+            'end_date'      => $data['end_date']    ?? null,
+            'status'        => 'pending', // active once payment confirmed
+            'target_tags'   => isset($data['target_tags']) ? (array) $data['target_tags'] : null,
+            'user_id'       => $user?->id,
+            'campaign_type' => 'general',
+            'price'         => $price,
+            'broadcaster_id' => (! empty($data['self_advertise']) && $user?->hasRole('broadcaster'))
+                ? $user->id
+                : null,
         ];
 
         // Handle file upload
@@ -52,7 +71,6 @@ class AdvertisementService
         } else {
             $payload['file_path'] = $data['file_path'] ?? '';
         }
-
         $ad = Advertisement::create($payload);
 
         $this->audit->log('created', 'advertisements', 'Advertisement created', [

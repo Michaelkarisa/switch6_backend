@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    'mpesa' => [
+        // Set MPESA_ENABLED=false (or leave credentials blank) to run in
+        // simulate mode: STK requests are logged but not actually sent,
+        // useful for local/dev environments without Daraja sandbox access.
+        'enabled' => env('MPESA_ENABLED', false),
+        'env' => env('MPESA_ENV', 'sandbox'), // sandbox | production
+        'consumer_key' => env('MPESA_CONSUMER_KEY'),
+        'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
+        'shortcode' => env('MPESA_SHORTCODE'),
+        'passkey' => env('MPESA_PASSKEY'),
+        'callback_url' => env('MPESA_CALLBACK_URL'),
+        'sandbox_base_url' => 'https://sandbox.safaricom.co.ke',
+        'production_base_url' => 'https://api.safaricom.co.ke',
+    ],
+
 ];

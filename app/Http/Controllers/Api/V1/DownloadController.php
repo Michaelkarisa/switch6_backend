@@ -25,4 +25,10 @@ class DownloadController extends Controller
             'Content-Type' => 'application/vnd.android.package-archive',
         ]);
     }
+
+    /** GET /v1/download/{filename?} — defaults to the current app build if omitted */
+    public function downloadApk(?string $filename = null): BinaryFileResponse|JsonResponse
+    {
+        return $this->download($filename ?: 'Switch6.apk');
+    }
 }

@@ -4,26 +4,28 @@ namespace App\Models;
 
 use Carbon\Carbon;
 
-class UserPlanSubscription extends BaseUuidModel
+class UserPlanSubscription extends BaseAppendOnlyModel
 {
     protected $table = 'user_plan_subscriptions';
 
     protected $fillable = [
         'user_id',
         'plan_id',
+        'payment_id',
         'status',
         'starts_at',
         'expires_at',
         'cancelled_at',
         'expiry_warning_sent_at',
-        'payment_id',
+        'quality',
     ];
 
     protected $casts = [
-        'starts_at'               => 'datetime',
-        'expires_at'              => 'datetime',
-        'cancelled_at'            => 'datetime',
-        'expiry_warning_sent_at'  => 'datetime',
+        'starts_at'              => 'datetime',
+        'expires_at'             => 'datetime',
+        'cancelled_at'           => 'datetime',
+        'expiry_warning_sent_at' => 'datetime',
+        'quality'                => 'integer',
     ];
 
     // ── Relationships ─────────────────────────────────────────────────────
@@ -35,12 +37,12 @@ class UserPlanSubscription extends BaseUuidModel
 
     public function plan()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(Plan::class, 'plan_id');
     }
 
-    public function adPayment()
+    public function payment()
     {
-        return $this->belongsTo(AdPayment::class, 'payment_id');
+        return $this->belongsTo(Payment::class, 'payment_id');
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────

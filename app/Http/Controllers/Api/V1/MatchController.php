@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BatchStoreMatchRequest;
 use App\Http\Requests\StoreMatchRequest;
 use App\Http\Requests\UpdateMatchStatusRequest;
 use App\Http\Requests\UpdateMatchRequest;
@@ -60,18 +59,12 @@ class MatchController extends Controller
         );
     }
 
-    /** POST /v1/matches/batch */
-    public function batchStore(BatchStoreMatchRequest $request): JsonResponse
-    {
-        $items = $request->validated();
-        $added = $this->matches->createMany($items, $request->user()?->id, $request);
-
-        return Api::batch($added, count($items), 'matches');
-    }
-
     /** GET /v1/matches/{match} */
-    public function show(MatchModel $match): JsonResponse
-    {
+    public function show(string $id): JsonResponse
+    {     $match = MatchModel::Where('id',$id)->orWhere('slug',$id)->first();
+          if($match == null){
+           return Api::error('Match Not Found',404);
+          }
         return Api::success($this->matches->format($match), 'Match fetched successfully');
     }
 

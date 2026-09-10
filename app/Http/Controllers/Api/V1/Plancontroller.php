@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\AdPayment;
 use App\Models\Plan;
 use App\Models\UserPlanSubscription;
 use App\Services\ApiResponseService as Api;
@@ -18,7 +17,7 @@ class PlanController extends Controller
     /** GET /v1/plans */
     public function index(): JsonResponse
     {
-        $plans = Plan::where('is_active', true)->orderBy('price_kes')->get();
+        $plans = Plan::where('is_active', true)->orderBy('price')->get();
 
         return Api::success($plans, 'Plans fetched successfully');
     }
@@ -33,19 +32,20 @@ class PlanController extends Controller
     public function subscribe(Request $request, Plan $plan): JsonResponse
     {
         $data = $request->validate([
-            'payment_id' => ['sometimes', 'nullable', 'uuid', 'exists:ad_payments,id'],
+            'quality'  => ['nullable', 'integer', 'in:480,720,1080,2160'],
+            'method'   => ['nullable', 'string', 'max:30'],
+            'currency' => ['nullable', 'string', 'max:10'],
+            'details'  => ['nullable', 'array'],
         ]);
 
-        $payment = isset($data['payment_id']) ? AdPayment::find($data['payment_id']) : null;
+        $data['plan_id'] = $plan->id;
 
-        $sub = $this->subscriptions->subscribe($request->user(), $plan, $payment);
+        $result = $this->subscriptions->subscribe($request->user(), $data);
 
-        return Api::created($sub, 'Subscribed successfully', [
-            'subscription_id' => $sub->id,
-            'expires_at'      => $sub->expires_at,
-        ]);
+        return Api::created($result['data'], $result['message']);
     }
 
+   
     /** DELETE /v1/subscriptions/{subscription} */
     public function cancel(Request $request, UserPlanSubscription $subscription): JsonResponse
     {
@@ -72,7 +72,7 @@ class PlanController extends Controller
         $history = $this->subscriptions->history($request->user());
 
         return Api::success($history, 'Subscription history fetched successfully', [
-            'count' => $history->count(),
+           // 'count' => $history->a,
         ]);
     }
 }

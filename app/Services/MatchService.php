@@ -2,8 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Club;
 use App\Models\League;
 use App\Models\MatchModel;
+use App\Models\User;
+use Carbon\Carbon;
+use Carbon\Traits\ToStringFormat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 class MatchService
 {
-    private const STATUSES = ['scheduled', 'live', 'finished', 'cancelled'];
+    private const STATUSES = ['scheduled', 'live', 'completed', 'cancelled'];
     private const LEAGUE_CACHE_TTL = 300;
 
     public function __construct(
@@ -25,7 +29,7 @@ class MatchService
     public function create(array $data, ?string $authorId, ?Request $request = null): array
     {
         $this->validateMatchPayload($data);
-
+       
         $match = DB::transaction(function () use ($data, $authorId, $request) {
             $match = MatchModel::create($this->buildPayload($data, $authorId));
             $match->load($this->relations());
@@ -37,39 +41,10 @@ class MatchService
 
             return $match;
         });
+         $formatted = $this->formatter->format($match);
+        DB::afterCommit(fn () => $this->notifications->notifyMatchCreated($formatted,$match));
 
-        DB::afterCommit(fn () => $this->notifications->notifyMatchCreated($match));
-
-        return ['match' => $match, 'formatted' => $this->formatter->format($match)];
-    }
-
-    public function createMany(array $items, ?string $authorId, ?Request $request = null): array
-    {
-        $created = DB::transaction(function () use ($items, $authorId, $request) {
-            $created = [];
-            foreach ($items as $data) {
-                $this->validateMatchPayload($data);
-                if (($data['home_club_id'] ?? null) === ($data['away_club_id'] ?? null)) continue;
-                $created[] = MatchModel::create($this->buildPayload($data, $authorId));
-            }
-
-            DB::afterCommit(fn () => $this->audit->log(
-                'created_many', 'matches', 'Matches batch created',
-                ['count' => count($created)], null, $request
-            ));
-
-            return $created;
-        });
-
-        $created = collect($created)->load($this->relations());
-
-        DB::afterCommit(function () use ($created) {
-            foreach ($created as $match) {
-                $this->notifications->notifyMatchCreated($match);
-            }
-        });
-
-        return $created->map(fn ($m) => $this->formatter->format($m))->values()->all();
+        return ['match' => $match, 'formatted' => $formatted];
     }
 
     public function updateStatus(MatchModel $match, string $status, ?Request $request = null): MatchModel
@@ -185,8 +160,8 @@ class MatchService
             'league_ids:' . md5($leagueName),
             self::LEAGUE_CACHE_TTL,
             fn () => League::query()
-                ->where('leaguename', 'like', "%{$leagueName}%")
-                ->orWhere('name', 'like', "%{$leagueName}%")
+                ->where('name', 'like', "%{$leagueName}%")
+                ->orWhere('short_name', 'like', "%{$leagueName}%")
                 ->pluck('id')
         );
 
@@ -215,17 +190,18 @@ class MatchService
         return [
             'id', 'league_id', 'home_club_id', 'away_club_id',
             'referee_id', 'author_id', 'match_date', 'home_score',
-            'away_score', 'status', 'venue', 'home_formation', 'away_formation',
+            'away_score', 'status', 'venue', 'home_formation', 'away_formation','slug'
         ];
     }
 
     private function relations(): array
     {
-        return ['homeClub', 'awayClub', 'league', 'refereeRecord', 'author'];
+        return ['homeClub', 'awayClub', 'league', 'referee', 'author', 'views'];
     }
 
     private function buildPayload(array $data, ?string $authorId): array
     {
+        $user = User::find($authorId);
         return [
             'match_date'     => $data['match_date'],
             'home_score'     => $data['home_score']     ?? 0,
@@ -239,10 +215,24 @@ class MatchService
             'home_club_id'   => $data['home_club_id'],
             'away_club_id'   => $data['away_club_id'],
             'league_id'      => $data['league_id']      ?? ($data['leagueid'] ?? null),
-            'author_id'      => $authorId,
+            'author_id'      => $authorId?? $data['authorid']?? null,
+            'match_rank'     => $this->matchRank($authorId??$data['authorid']),
+            'type'           => $user->game_type,
+            'slug'           => $this->slug($data),
         ];
     }
 
+    private function slug(array $data):string{
+    $homeClub = Club::find($data['home_club_id']);
+    $awayClub = Club::find($data['away_club_id']);
+    $time = Carbon::now()->toDateTimeString();
+    $slug = "{$homeClub->name}&VS&{$awayClub->name}&{$time}";
+        return $slug.str_replace(' ', '&',$slug,$slug);
+    }
+    private function matchRank(string $authorId):float{
+       $user = User::find($authorId);
+      return  $user->rank??0.0;
+    }
     private function validateMatchPayload(array $data): void
     {
         if (empty($data['match_date']))  throw ValidationException::withMessages(['match_date'  => ['Match date is required.']]);
@@ -262,4 +252,6 @@ class MatchService
             ]);
         }
     }
+
+   
 }

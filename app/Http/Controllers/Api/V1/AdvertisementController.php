@@ -26,13 +26,18 @@ class AdvertisementController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'title'     => ['required', 'string', 'max:255'],
-            'file_type' => ['required', 'in:image,video'],
-            'file'      => ['required_without:file_path', 'file', 'max:51200'], // 50MB
-            'file_path' => ['required_without:file', 'string'],
-            'duration'  => ['sometimes', 'integer', 'min:1', 'max:300'],
-            'period'    => ['nullable', 'string'],
-            'end_date'  => ['nullable', 'date'],
+            'title'          => ['required', 'string', 'max:255'],
+            'file_type'      => ['required', 'in:image,video'],
+            'file'           => ['required_without:file_path', 'file', 'max:51200'], // 50MB
+            'file_path'      => ['required_without:file', 'string'],
+            'duration'       => ['sometimes', 'integer', 'min:1', 'max:300'],
+            'period'         => ['nullable', 'string'],
+            'end_date'       => ['nullable', 'date'],
+            'currency'       => ['nullable', 'string', 'max:10'],
+            'method'         => ['nullable', 'string', 'max:30'],
+            'details'        => ['nullable', 'array'],
+            'target_tags'    => ['nullable', 'array'],
+            'self_advertise' => ['nullable', 'boolean'],
         ]);
 
         $ad = $this->service->create($request->all(), $request->user());

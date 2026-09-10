@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Club;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class ClubService
@@ -28,23 +29,16 @@ class ClubService
 
     public function create(array $data): Club
     {
-        $club = Club::create($data);
+        $club = Club::create([...$data,'slug'=>$this->slug($data)]);
         $this->audit->log('created', 'clubs', 'Club created', ['club_id' => $club->id], $club);
         Cache::forget(self::CACHE_KEY);
         return $club;
     }
 
-    public function createMany(array $items): array
-    {
-        $created = [];
-        foreach ($items as $data) {
-            $created[] = Club::create($data);
-        }
-        $this->audit->log('created_many', 'clubs', 'Clubs batch created', ['count' => count($created)]);
-        Cache::forget(self::CACHE_KEY);
-        return $created;
+     private function slug(array $data):string{
+      $slug = "{$data['name']}&{$data['city']}&{$data['founded_year']}";
+        return $slug.str_replace(' ', '&',$slug,$slug);
     }
-
     public function findByIdentifier(string $identifier): ?Club
     {
         return Club::with('players')
