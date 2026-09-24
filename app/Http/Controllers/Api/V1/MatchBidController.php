@@ -38,6 +38,19 @@ class MatchBidController extends Controller
         return Api::success(['period' => $data['period'], 'base_price' => $this->bids->basePrice($data['period'])], 'Base price fetched successfully');
     }
 
+    /** GET /v1/match-bids/status?match_id=&period= — current leading bid, minimum to outbid, and deadline */
+    public function status(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'match_id' => ['required', 'uuid', 'exists:matches,id'],
+            'period'   => ['required', 'string', 'in:before_match,halftime,fulltime'],
+        ]);
+
+        $status = $this->bids->auctionStatus($data['match_id'], $data['period']);
+
+        return Api::success($status, 'Auction status fetched successfully');
+    }
+
     /** POST /v1/match-bids */
     public function store(Request $request): JsonResponse
     {
@@ -50,7 +63,6 @@ class MatchBidController extends Controller
             'currency'            => ['nullable', 'string', 'max:10'],
             'method'              => ['nullable', 'string', 'max:30'],
             'details'             => ['nullable', 'array'],
-            'self_advertise'      => ['nullable', 'boolean'],
             'bids'                => ['required', 'array', 'min:1'],
             'bids.*.match_id'     => ['required', 'uuid', 'exists:matches,id'],
             'bids.*.period'       => ['required', 'string', 'in:before_match,halftime,fulltime'],

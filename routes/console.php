@@ -41,13 +41,14 @@ Schedule::command('ads:expire')
     });
 
 // ── Bid slot auctions ────────────────────────────────────────────────────
-// Resolve before_match bid slot auctions shortly before kickoff.
-Schedule::command('bids:resolve-before-match --minutes=30')
+// Resolve bid auctions whose 1-hour bidding window has closed (applies to
+// before_match, halftime, and fulltime alike).
+Schedule::command('bids:resolve-expired')
     ->everyFiveMinutes()
     ->withoutOverlapping()
     ->runInBackground()
     ->onFailure(function () {
-        \Illuminate\Support\Facades\Log::error('Scheduled bids:resolve-before-match failed.');
+        \Illuminate\Support\Facades\Log::error('Scheduled bids:resolve-expired failed.');
     });
 
 // ── Ad events pruning ─────────────────────────────────────────────────────

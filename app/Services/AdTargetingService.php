@@ -3,15 +3,23 @@
 namespace App\Services;
 
 use App\Models\Advertisement;
-
+use App\Models\MatchModel;
 
 class AdTargetingService
 {
     public function pickBestAd(?string $matchId, ?string $period)
     {
+        $matchAuthorId = $matchId ? MatchModel::where('id', $matchId)->value('author_id') : null;
+
         return Advertisement::where('status', 'active')
             ->where(function ($q) use ($period) {
                 $q->where('period', $period)->orWhereNull('period');
+            })
+            ->where(function ($q) use ($matchAuthorId) {
+                // Self-advertise ads (broadcaster_id set) can only play on
+                // that broadcaster's own matches; everyone else's ads are
+                // unrestricted.
+                $q->whereNull('broadcaster_id')->orWhere('broadcaster_id', $matchAuthorId);
             })
             ->get()
             ->sortByDesc(function ($ad) use ($matchId) {
@@ -28,6 +36,8 @@ class AdTargetingService
      */
     public function getads(string $matchId, string $period): array
     {
+        $matchAuthorId = MatchModel::where('id', $matchId)->value('author_id');
+
         $specific = \App\Models\MatchBid::with('ad')
             ->forPeriod($matchId, $period)
             ->won()
@@ -45,6 +55,10 @@ class AdTargetingService
                 ->where('campaign_type', 'general')
                 ->where(function ($q) use ($period) {
                     $q->where('period', $period)->orWhereNull('period');
+                })
+                ->where(function ($q) use ($matchAuthorId) {
+                    // Same self-advertise restriction as pickBestAd().
+                    $q->whereNull('broadcaster_id')->orWhere('broadcaster_id', $matchAuthorId);
                 })
                 ->inRandomOrder()
                 ->limit($generalNeeded)

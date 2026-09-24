@@ -47,7 +47,7 @@ class ShareLineupService
             'status'        => 'pending',
         ]);
 
-        $this->audit->log('shared', 'share_lineup', 'Lineup shared with another broadcaster', [
+        $this->audit->log('shared', 'share_lineups', 'Lineup shared with another broadcaster', [
             'share_id'     => $shared->id,
             'recepient_id' => $recipient->id,
         ], userId: $user->id);
@@ -149,7 +149,7 @@ class ShareLineupService
                 'imported_into_match_id'  => $targetMatch->id,
             ]);
 
-            $this->audit->log('imported', 'share_lineup', 'Shared lineup imported into match', [
+            $this->audit->log('imported', 'share_lineups', 'Shared lineup imported into match', [
                 'share_id'          => $share->id,
                 'target_match_id'   => $targetMatch->id,
             ], userId: $user->id);

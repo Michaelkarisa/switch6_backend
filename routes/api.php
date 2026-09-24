@@ -150,6 +150,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'active.user', 'rate.limit:30,1
     // Match bids (bid tab)
     Route::get ('match-bids/matches',    [MatchBidController::class, 'matches']);
     Route::get ('match-bids/base-price', [MatchBidController::class, 'basePrice']);
+    Route::get ('match-bids/status',     [MatchBidController::class, 'status']);
     Route::post('match-bids',            [MatchBidController::class, 'store'])->middleware('idempotency');
     Route::get ('match-bids/my',         [MatchBidController::class, 'my']);
     //  payments
