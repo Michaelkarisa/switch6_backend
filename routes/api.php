@@ -108,8 +108,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'active.user', 'rate.limit:30,1
     Route::post  ('lineups',                    [LineupController::class, 'storeMany']);
     Route::delete('lineups/by-match/{match}',   [LineupController::class, 'destroyByMatch']);
     // Goals / scorers
-    Route::post  ('matches/{match}/goals',      [GoalController::class, 'store']);
-    Route::delete('goals/{scorer}',             [GoalController::class, 'destroy']);
+    Route::get   ('matches/{match}/goals',        [GoalController::class, 'index']);
+    Route::post  ('matches/{match}/goals',        [GoalController::class, 'store']);
+    Route::delete('matches/{match}/goals/latest', [GoalController::class, 'destroyLatest']);
+    Route::delete('goals/{scorer}',               [GoalController::class, 'destroy']);
     // Clubs / players / leagues / referees (broadcaster CRUD)
     Route::post  ('clubs',              [ClubController::class, 'store']);
     Route::delete('clubs/{club}',       [ClubController::class, 'destroy']);
@@ -183,6 +185,8 @@ Route::delete('/stream-sessions/{match}',  [StreamSessionController::class, 'des
 Route::get('/stream-events/{match}',     [StreamEventController::class, 'index']);
 Route::post('/stream-events',                [StreamEventController::class, 'store']);
 Route::delete('/stream-events/{id}',         [StreamEventController::class, 'destroy']);
+// ── stream_views (media-server view-count tick) ────────────────────────────
+Route::post('/stream-views',                 [MatchViewsController::class, 'storeFromStream']);
 // ── broadcaster_rank ─────────────────────────────────────────────────────
 Route::get('/broadcaster-rank/{broadcasterId}',               [BroadcasterRankController::class, 'show']);
 Route::get('/broadcaster-rank/{broadcasterId}/highest-views', [BroadcasterRankController::class, 'highestViews']);

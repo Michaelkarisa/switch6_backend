@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class BroadcasterRankService
 {
-    public function findOrDefault(int $broadcasterId): BroadcasterRank|array
+    public function findOrDefault(string $broadcasterId): BroadcasterRank|array
     {
         $rank = BroadcasterRank::where('broadcaster_id', $broadcasterId)->first();
 
@@ -17,7 +17,7 @@ class BroadcasterRankService
     /**
      * Highest cumulative view count across this broadcaster's past sessions.
      */
-    public function highestViews(int $broadcasterId): int
+    public function highestViews(string $broadcasterId): int
     {
         $highest = DB::table('stream_sessions as s')
             ->join('match_views as v', 'v.match_id', '=', 's.match_id')
@@ -37,7 +37,7 @@ class BroadcasterRankService
      * count compares to their personal best (current / highest).
      * If there's no prior data (highest == 0), award a flat 1 point.
      */
-    public function award(int $broadcasterId, int $currentViews): float
+    public function award(string $broadcasterId, int $currentViews): float
     {
         $highest = $this->highestViews($broadcasterId);
 
@@ -62,7 +62,7 @@ class BroadcasterRankService
         return $point;
     }
 
-    public function updatePoints(int $broadcasterId, float $points): int
+    public function updatePoints(string $broadcasterId, float $points): int
     {
         return BroadcasterRank::where('broadcaster_id', $broadcasterId)
             ->update([
@@ -71,7 +71,7 @@ class BroadcasterRankService
             ]);
     }
 
-    public function delete(int $broadcasterId): int
+    public function delete(string $broadcasterId): int
     {
         return BroadcasterRank::where('broadcaster_id', $broadcasterId)->delete();
     }

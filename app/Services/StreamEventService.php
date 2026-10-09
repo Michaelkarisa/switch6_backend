@@ -36,7 +36,7 @@ class StreamEventService
         ]);
     }
 
-    public function delete(int $id): int
+    public function delete(string $id): int
     {
         return StreamEvent::where('id', $id)->delete();
     }

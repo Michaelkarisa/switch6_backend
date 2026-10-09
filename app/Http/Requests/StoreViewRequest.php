@@ -14,7 +14,7 @@ class StoreViewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'match_id'  => ['required', 'integer', 'exists:matches,id'],
+            'match_id'    => ['required', 'string', 'exists:matches,id'],
             'platform'    => ['required', 'string', 'max:100'],
             'view_count'  => ['sometimes', 'integer', 'min:0'],
         ];

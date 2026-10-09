@@ -57,6 +57,7 @@ class MatchFormatterService
             'homeTeam' => [
                 'id' => $match->home_club_id,
                 'name' => $match->homeClub?->name ?? '',
+                'displayName' => $match->homeClub?->display_name?? '',
                 'managers' => $this->managers($match->homeClub),
                 'formation' => $match->home_formation ?: '4-4-2',
                 'url' => $match->homeClub?->logo_url ?? '',
@@ -69,6 +70,7 @@ class MatchFormatterService
             'awayTeam' => [
                 'id' => $match->away_club_id,
                 'name' => $match->awayClub?->name ?? '',
+                'displayName' => $match->homeClub?->display_name?? '',
                 'managers' => $this->managers($match->awayClub),
                 'formation' => $match->away_formation ?: '4-4-2',
                 'url' => $match->awayClub?->logo_url ?? '',
@@ -120,6 +122,7 @@ class MatchFormatterService
                 return [
                     'id' => $lineup->player?->id ?? '',
                     'name' => $lineup->player?->name ?? '',
+                    'nickName' =>$lineup->player?->nick_name?? '',
                     'number' => $lineup->player?->jersey_number,
                     'position' => $lineup->position,
                     'team' => $lineup->club?->name ?? '',

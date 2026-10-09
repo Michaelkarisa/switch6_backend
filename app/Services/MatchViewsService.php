@@ -46,12 +46,28 @@ class MatchViewsService
             'match_id' => $data['match_id'] ?? null,
             'platform'   => $data['platform'] ?? null,
             'view_count' => $data['view_count'] ?? 0,
-            'sampled_at' => now(),
+            'created_at' => now(),
         ]);
     }
 
-    public function delete(int $id): int
+    public function delete(string $id): int
     {
         return MatchViews::where('id', $id)->delete();
+    }
+
+    /**
+     * Ingest a view-count sample pushed by the Rust media server's periodic
+     * metrics tick (ApiClient::report_views -> POST /stream-views).
+     * `stream_key` is the match id; `session_id`, if present, isn't
+     * persisted — match_views has no stream_session_id column today.
+     */
+    public function createFromStream(array $data): MatchViews
+    {
+        return MatchViews::create([
+            'match_id'   => $data['stream_key'],
+            'platform'   => $data['platform'],
+            'view_count' => $data['view_count'],
+            'created_at' => now(),
+        ]);
     }
 }

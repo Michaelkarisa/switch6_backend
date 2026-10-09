@@ -32,7 +32,7 @@ class StreamEventController extends Controller
         return response()->json(['id' => $event->id], Response::HTTP_CREATED);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $deleted = $this->service->delete($id);
 

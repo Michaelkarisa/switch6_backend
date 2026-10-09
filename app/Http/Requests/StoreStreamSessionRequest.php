@@ -16,7 +16,7 @@ class StoreStreamSessionRequest extends FormRequest
         return [
             'match_id'             => ['required', 'string', 'max:255', 'unique:stream_sessions,match_id'],
             'status'               => ['sometimes', 'string', 'max:50'],
-            'broadcaster_id'       => ['sometimes', 'nullable', 'integer'],
+            'broadcaster_id'       => ['sometimes', 'nullable', 'string'],
             'current_streamer'     => ['sometimes', 'nullable', 'ip'],
             'platform_targets'     => ['sometimes', 'array'],
             'members'              => ['sometimes', 'array'],

@@ -10,6 +10,7 @@ return new class extends Migration {
         Schema::create('clubs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name', 100);
+            $table->string('display_name',10);
             $table->string('city', 100)->nullable();
             $table->unsignedInteger('founded_year')->nullable();
             $table->string('stadium')->nullable();

@@ -6,6 +6,7 @@ class Club extends BaseUuidModel
 {
     protected $fillable = [
         'name',
+        'display_name',
         'city',
         'founded_year',
         'stadium',

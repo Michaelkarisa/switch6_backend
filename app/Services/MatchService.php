@@ -76,8 +76,10 @@ class MatchService
         $match = DB::transaction(function () use ($match, $data, $request) {
             $match->update([
                 'match_date'     => $data['match_date']     ?? $match->match_date,
-                'home_score'     => $data['home_score']     ?? $match->home_score,
-                'away_score'     => $data['away_score']     ?? $match->away_score,
+                // home_score/away_score deliberately not written here: once a
+                // match has scorers they're derived from the `scorers` table
+                // (see MatchModel accessors). Edit the score by adding/removing
+                // scorers via POST /matches/{match}/goals and DELETE /goals/{scorer}.
                 'status'         => $data['status']         ?? $match->status,
                 'venue'          => $data['venue']          ?? $match->venue,
                 'referee'        => $data['referee']        ?? ($data['referee_id'] ?? $match->referee),

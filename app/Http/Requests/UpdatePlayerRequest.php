@@ -15,6 +15,7 @@ class UpdatePlayerRequest extends FormRequest
     {
         return [
             'name'         => ['sometimes', 'string', 'max:100'],
+            'nick_name'    => ['nullable', 'string', 'max:20'],
             'club_id'      => ['sometimes', 'exists:clubs,id'],
             'position'     => ['sometimes', 'string'],
             'age'          => ['nullable', 'integer'],

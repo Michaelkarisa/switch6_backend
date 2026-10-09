@@ -14,12 +14,12 @@ class BroadcasterRankController extends Controller
     {
     }
 
-    public function show(int $broadcasterId): JsonResponse
+    public function show(string $broadcasterId): JsonResponse
     {
         return response()->json($this->service->findOrDefault($broadcasterId));
     }
 
-    public function highestViews(int $broadcasterId): JsonResponse
+    public function highestViews(string $broadcasterId): JsonResponse
     {
         return response()->json([
             'broadcaster_id' => $broadcasterId,
@@ -27,7 +27,7 @@ class BroadcasterRankController extends Controller
         ]);
     }
 
-    public function award(AwardBroadcasterRequest $request, int $broadcasterId): JsonResponse
+    public function award(AwardBroadcasterRequest $request, string $broadcasterId): JsonResponse
     {
         $point = $this->service->award($broadcasterId, (int) $request->input('current_views', 0));
 
@@ -37,14 +37,14 @@ class BroadcasterRankController extends Controller
         ]);
     }
 
-    public function update(Request $request, int $broadcasterId): JsonResponse
+    public function update(Request $request, string $broadcasterId): JsonResponse
     {
         $updated = $this->service->updatePoints($broadcasterId, (float) $request->input('points'));
 
         return response()->json(['updated' => $updated]);
     }
 
-    public function destroy(int $broadcasterId): JsonResponse
+    public function destroy(string $broadcasterId): JsonResponse
     {
         $deleted = $this->service->delete($broadcasterId);
 

@@ -15,6 +15,7 @@ class StorePlayerRequest extends FormRequest
     {
         return [
             'name'         => ['required', 'string', 'max:100'],
+            'nick_name'    => ['nullable', 'string', 'max:20'],
             'club_id'      => ['required', 'exists:clubs,id'],
             'position'     => ['required', 'string'],
             'age'          => ['nullable', 'integer'],

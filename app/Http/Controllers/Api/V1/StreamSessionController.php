@@ -35,7 +35,10 @@ class StreamSessionController extends Controller
     {
         $session = $this->service->create($request->validated());
 
-        return response()->json(['id' => $session->id], Response::HTTP_CREATED);
+        return response()->json([
+            'id'             => $session->id,
+            'broadcaster_id' => $session->broadcaster_id,
+        ], Response::HTTP_CREATED);
     }
 
     public function update(UpdateStreamSessionRequest $request, string $match_id): JsonResponse

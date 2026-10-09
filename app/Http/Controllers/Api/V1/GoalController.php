@@ -14,6 +14,16 @@ class GoalController extends Controller
 {
     public function __construct(private GoalService $goals) {}
 
+    /** GET /v1/matches/{match}/goals — scorers plus the score derived from them. */
+    public function index(MatchModel $match): JsonResponse
+    {
+        return Api::success([
+            'home_score' => $match->home_score,
+            'away_score' => $match->away_score,
+            'scorers'    => $this->goals->listForMatch($match),
+        ]);
+    }
+
     /** POST /v1/matches/{match}/goals */
     public function store(StoreGoalRequest $request, MatchModel $match): JsonResponse
     {
@@ -37,5 +47,30 @@ class GoalController extends Controller
         $this->goals->remove($scorer, $request);
 
         return Api::success(null, 'Goal removed successfully');
+    }
+
+    /**
+     * DELETE /v1/matches/{match}/goals/latest — undoes whichever goal was
+     * scored most recently for this match. Backs the Rust media server's
+     * "undoGoal" control action (see undoLastGoal in services.dart): the
+     * app only tracks "last goal for this match", not a specific scorer_id,
+     * so the caller can't target `destroy()` above directly.
+     */
+    public function destroyLatest(Request $request, MatchModel $match): JsonResponse
+    {
+        $scorer = $this->goals->removeLatestForMatch($match, $request);
+        $match->refresh();
+
+        if (! $scorer) {
+            return Api::success(
+                ['home_score' => $match->home_score, 'away_score' => $match->away_score],
+                'No goal to undo for this match',
+            );
+        }
+
+        return Api::success(
+            ['scorer_id' => $scorer->id, 'home_score' => $match->home_score, 'away_score' => $match->away_score],
+            'Goal undone successfully',
+        );
     }
 }

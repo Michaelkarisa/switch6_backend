@@ -20,8 +20,14 @@ class StoreGoalRequest extends FormRequest
             'minute'          => ['required', 'integer'],
             'goal_type'       => ['nullable', Rule::in(['regular', 'penalty', 'own_goal', 'free_kick'])],
             'assist_player_id' => ['nullable', 'exists:players,id'],
-            'home_score'      => ['required', 'integer'],
-            'away_score'      => ['required', 'integer'],
+            // No longer used by GoalService::record() — MatchModel's
+            // getHomeScoreAttribute/getAwayScoreAttribute derive the score
+            // by counting `scorers` rows instead of trusting client input.
+            // Left as accepted-but-ignored (rather than removed outright)
+            // so an existing caller that still sends them doesn't start
+            // getting validation errors.
+            'home_score'      => ['sometimes', 'integer'],
+            'away_score'      => ['sometimes', 'integer'],
         ];
     }
 }

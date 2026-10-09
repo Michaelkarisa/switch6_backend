@@ -6,6 +6,7 @@ class Player extends BaseUuidModel
 {
     protected $fillable = [
         'name',
+        'nick_name',
         'club_id',
         'position',
         'age',

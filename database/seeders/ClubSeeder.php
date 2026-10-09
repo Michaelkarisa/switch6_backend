@@ -15,6 +15,7 @@ class ClubSeeder extends Seeder
             [
                 'id'           => (string) Str::uuid(),
                 'name'         => 'Gor Mahia FC',
+                'display_name' => 'GM FC',
                 'slug'         => $this->slug(['name'=>'Gor Mahia FC','city'=>'Nairobi','founded_year'=>1958]),
                 'city'         => 'Nairobi',
                 'founded_year' => 1968,
@@ -27,6 +28,7 @@ class ClubSeeder extends Seeder
             [
                 'id'           => (string) Str::uuid(),
                 'name'         => 'AFC Leopards',
+                'display_name' => 'AFC L',
                 'slug'         => $this->slug(['name'=>'AFC Leopards','city'=>'Nairobi','founded_year'=>1958]),
                 'city'         => 'Nairobi',
                 'founded_year' => 1958,
@@ -39,6 +41,7 @@ class ClubSeeder extends Seeder
             [
                 'id'           => (string) Str::uuid(),
                 'name'         => 'Tusker FC',
+                'display_name' => 'T FC',
                 'slug'         => $this->slug(['name'=>'Tusker FC','city'=>'Nairobi','founded_year'=>1969]),
                 'city'         => 'Nairobi',
                 'founded_year' => 1969,
@@ -51,6 +54,7 @@ class ClubSeeder extends Seeder
             [
                 'id'           => (string) Str::uuid(),
                 'name'         => 'Kakamega Homeboyz',
+                'display_name' => 'KK HBZ',
                 'slug'         => $this->slug(['name'=>'Kakamega Homeboyz','city'=>'Kakamega','founded_year'=>2008]),
                 'city'         => 'Kakamega',
                 'founded_year' => 2008,
@@ -63,6 +67,7 @@ class ClubSeeder extends Seeder
             [
                 'id'           => (string) Str::uuid(),
                 'name'         => 'Mathare United',
+                'display_name' => 'M UNTD',
                 'slug'         => $this->slug(['name'=>'Mathare United','city'=>'Nairobi','founded_year'=>1994]),
                 'city'         => 'Nairobi',
                 'founded_year' => 1994,
@@ -75,6 +80,7 @@ class ClubSeeder extends Seeder
             [
                 'id'           => (string) Str::uuid(),
                 'name'         => 'Ulinzi Stars',
+                'display_name' => 'U STARS',
                 'slug'         => $this->slug(['name'=>'Ulinzi Stars','city'=>'Nairobi','founded_year'=>1998]),
                 'city'         => 'Nairobi',
                 'founded_year' => 1998,

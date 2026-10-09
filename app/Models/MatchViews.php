@@ -10,7 +10,8 @@ class MatchViews extends BaseAppendOnlyModel
     use HasFactory;
 
     /**
-     * No created_at/updated_at columns on this table — only sampled_at.
+     * `updated_at` doesn't exist on this table (rows are append-only
+     * samples) — only `created_at`, set explicitly since $timestamps is off.
      */
     public $timestamps = false;
 

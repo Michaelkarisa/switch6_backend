@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreStreamViewRequest;
 use App\Http\Requests\StoreViewRequest;
 use App\Services\MatchViewsService;
 use Illuminate\Http\JsonResponse;
@@ -36,10 +37,18 @@ class MatchViewsController extends Controller
         return response()->json(['id' => $sample->id], Response::HTTP_CREATED);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $deleted = $this->service->delete($id);
 
         return response()->json(['deleted' => $deleted]);
+    }
+
+    /** POST /v1/stream-views — Rust media server's periodic view-count tick. */
+    public function storeFromStream(StoreStreamViewRequest $request): JsonResponse
+    {
+        $sample = $this->service->createFromStream($request->validated());
+
+        return response()->json(['id' => $sample->id], Response::HTTP_CREATED);
     }
 }
